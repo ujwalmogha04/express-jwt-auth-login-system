@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend For Express-Jwt Login System </title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <center>
+        <br><br> <br><br> <br><br> <br><br> <br><br>
+        <input id="Signup-Username" type="text" placeholder="Enter Username">
+        <br><br>
+        <input id="Signup-Password" type="password" placeholder="Enter password">
+        <br><br>
+        <button id="Signup-button" onclick="signup()">Signup</button>
+        <br><br>
+        <input id="Signin-Username" type="text" placeholder="Enter Username">
+        <br><br>
+        <input id="Signin-Password" type="password" placeholder="Enter password">
+        <br><br>
+        <button id="Sigin-button" onclick="signin()">Sigin</button>
+        <h3>User Information :</h3>
+        <P id="User-username"></P>
+        <P id="User-password"></P>
+        <br><br>
+        <button id="logout-btn" onclick="logout()">LogOut</button>
+    </center>
+
+    <script>
+
+        async function signup() {
+            const username = document.getElementById("Signup-Username").value;
+            const password = document.getElementById("Signup-Password").value;
+
+
+            await axios.post("http://localhost:3000/signup", {
+                username: username,
+                password: password
+            })
+            alert("You are signed up")
+
+        };
+
+        async function signin() {
+
+            username = document.getElementById("Signin-Username").value,
+                password = document.getElementById("Signin-Password").value
+
+            try {
+                const response = await axios.post("http://localhost:3000/signin", {
+                    username: username,
+                    password: password
+                })
+
+                if (response.data.token) {
+                    localStorage.setItem("token", response.data.token)
+                    alert("You are signed in")
+                    getUserInfo();
+                }
+
+            } catch (error) {
+                alert(error.response.data.message);
+            }
+        }
+
+        async function getUserInfo() {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("No token found, please sign in.");
+                return;
+            }
+            try{
+                const response = await axios.get("http://localhost:3000/me", {
+                headers: {
+                    "Authorization": token
+                }
+            })
+            document.getElementById("User-username").innerHTML = "username: " + response.data.username
+            document.getElementById("User-password").innerHTML = "username: " + response.data.password
+            }catch(error){
+                alert("Error fetching user info: " + error.response.data.message);
+            }
+           
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            document.getElementById("User-username").innerHTML = " ";
+            document.getElementById("User-password").innerHTML = " ";
+            alert("You have logged out.");
+        }
+
+    </script>
+
+</body>
+
+</html>
